@@ -7,815 +7,142 @@
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
-    body {
-      background-color: #F2EBE5;
-      color: #5A504A;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 20px 60px 20px;
-      margin: 0;
-      overflow-y: scroll;
-    }
+    body { background-color: #F2EBE5; color: #5A504A; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px 20px 60px 20px; margin: 0; overflow-y: scroll; }
+    h1 { color: #4A403A; letter-spacing: 1px; margin-top: 10px; margin-bottom: 20px; }
 
-    h1 {
-      color: #4A403A;
-      letter-spacing: 1px;
-      margin-top: 10px;
-      margin-bottom: 20px;
-    }
+    /* 顶部登录栏样式 */
+    .top-auth-bar { width: 100%; max-width: 800px; background: #FFFFFF; border-radius: 20px; box-shadow: 0 10px 28px rgba(160, 145, 135, 0.12); padding: 16px 18px; box-sizing: border-box; margin-bottom: 20px; }
+    .auth-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .auth-row input { flex: 1; min-width: 180px; margin-bottom: 0; }
+    .auth-btn { border: none; border-radius: 12px; padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 600; transition: 0.2s; }
+    .auth-btn.primary { background: #8FB9A8; color: white; }
+    .auth-btn.secondary { background: #EBE3DE; color: #5A504A; }
+    .auth-btn.danger { background: #E8B4B8; color: white; }
+    .auth-status { margin-top: 10px; font-size: 13px; color: #8C7D73; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 
-    .top-auth-bar {
-      width: 100%;
-      max-width: 800px;
-      background: #FFFFFF;
-      border-radius: 20px;
-      box-shadow: 0 10px 28px rgba(160, 145, 135, 0.12);
-      padding: 16px 18px;
-      box-sizing: border-box;
-      margin-bottom: 20px;
-    }
+    .nav-tabs { display: flex; background: #EBE3DE; border-radius: 12px; padding: 4px; margin-bottom: 30px; }
+    .nav-btn { padding: 8px 30px; border: none; background: transparent; border-radius: 8px; font-size: 15px; font-weight: 600; color: #8C7D73; cursor: pointer; transition: all 0.3s; }
+    .nav-btn.active { background: #FFFFFF; color: #4A403A; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-    .auth-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
+    .view-container { display: none; width: 100%; max-width: 800px; justify-content: center; gap: 40px; flex-wrap: wrap; }
+    .view-container.active { display: flex; }
 
-    .auth-row input {
-      flex: 1;
-      min-width: 180px;
-      margin-bottom: 0;
-    }
-
-    .auth-btn {
-      border: none;
-      border-radius: 12px;
-      padding: 10px 16px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: 0.2s;
-    }
-
-    .auth-btn.primary {
-      background: #8FB9A8;
-      color: white;
-    }
-
-    .auth-btn.secondary {
-      background: #EBE3DE;
-      color: #5A504A;
-    }
-
-    .auth-btn.danger {
-      background: #E8B4B8;
-      color: white;
-    }
-
-    .auth-status {
-      margin-top: 10px;
-      font-size: 13px;
-      color: #8C7D73;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .nav-tabs {
-      display: flex;
-      background: #EBE3DE;
-      border-radius: 12px;
-      padding: 4px;
-      margin-bottom: 30px;
-    }
-
-    .nav-btn {
-      padding: 8px 30px;
-      border: none;
-      background: transparent;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      color: #8C7D73;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .nav-btn.active {
-      background: #FFFFFF;
-      color: #4A403A;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    .view-container {
-      display: none;
-      width: 100%;
-      max-width: 800px;
-      justify-content: center;
-      gap: 40px;
-      flex-wrap: wrap;
-    }
-
-    .view-container.active {
-      display: flex;
-    }
-
-    .card {
-      background: #FFFFFF;
-      padding: 30px;
-      border-radius: 24px;
-      width: 350px;
-      box-shadow: 0 12px 35px rgba(160, 145, 135, 0.15);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      box-sizing: border-box;
-    }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="password"] {
-      width: 90%;
-      padding: 12px 15px;
-      border-radius: 12px;
-      border: 1px solid #EBE3DE;
-      background: #FAF6F3;
-      color: #5A504A;
-      font-size: 16px;
-      outline: none;
-      box-sizing: border-box;
-    }
-
-    #taskName {
-      margin-bottom: 20px;
-    }
-
-    .color-theme-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      font-weight: 500;
-      width: 90%;
-    }
-
-    select {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #EBE3DE;
-      background: #FAF6F3;
-      color: #5A504A;
-      font-size: 15px;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .timer-display {
-      font-size: 72px;
-      font-weight: 300;
-      margin: 20px 0;
-      color: #4A403A;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .controls {
-      display: flex;
-      gap: 15px;
-    }
-
-    button.action-btn {
-      padding: 12px 25px;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-
-    button.action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.12);
-    }
-
-    button.action-btn:active {
-      transform: translateY(1px);
-    }
-
-    #startBtn { background: #8FB9A8; color: white; }
-    #pauseBtn { background: #E8B4B8; color: white; display: none; }
-    #stopBtn { background: #D98880; color: white; }
-
-    #chart-container {
-      width: 100%;
-      height: 300px;
-      margin-top: 20px;
-    }
-
-    .card-title {
-      margin-top: 0;
-      color: #8C7D73;
-      font-weight: 600;
-    }
-
-    .clear-data-btn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: none;
-      border: none;
-      color: #C59494;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-      outline: none;
-    }
-
+    .card { background: #FFFFFF; padding: 30px; border-radius: 24px; width: 350px; box-shadow: 0 12px 35px rgba(160, 145, 135, 0.15); display: flex; flex-direction: column; align-items: center; position: relative; box-sizing: border-box; }
+    
+    input[type="text"], input[type="email"], input[type="password"] { width: 90%; padding: 12px 15px; border-radius: 12px; border: 1px solid #EBE3DE; background: #FAF6F3; color: #5A504A; font-size: 16px; margin-bottom: 20px; outline: none; box-sizing: border-box; }
+    #taskName { margin-bottom: 20px; }
+    
+    .color-theme-container { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-weight: 500; width: 90%; }
+    select { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #EBE3DE; background: #FAF6F3; color: #5A504A; font-size: 15px; outline: none; cursor: pointer; }
+    select:disabled { background: #EBE3DE; color: #A0958F; cursor: not-allowed; }
+    
+    .timer-display { font-size: 72px; font-weight: 300; margin: 20px 0; color: #4A403A; font-variant-numeric: tabular-nums; }
+    .controls { display: flex; gap: 15px; }
+    button.action-btn { padding: 12px 25px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+    button.action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.12); }
+    button.action-btn:active { transform: translateY(1px); }
+    #startBtn { background: #8FB9A8; color: white; } 
+    #pauseBtn { background: #E8B4B8; color: white; display: none; } 
+    #stopBtn { background: #D98880; color: white; } 
+    
+    #chart-container { width: 100%; height: 300px; margin-top: 20px; }
+    .card-title { margin-top: 0; color: #8C7D73; font-weight: 600; }
+    
+    .clear-data-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #C59494; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; outline: none; }
     .clear-data-btn:hover { color: #D98880; }
-
-    .export-btn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      background: none;
-      border: none;
-      color: #8FB9A8;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-      outline: none;
-    }
-
+    .export-btn { position: absolute; top: 15px; left: 15px; background: none; border: none; color: #8FB9A8; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; outline: none; }
     .export-btn:hover { color: #698396; }
 
-    #today-records-container, #modal-records-container {
-      width: 100%;
-      margin-top: 10px;
-      border-top: 1px solid #EBE3DE;
-      padding-top: 20px;
-    }
-
-    .records-title {
-      color: #8C7D73;
-      font-size: 14px;
-      margin-top: 0;
-      margin-bottom: 15px;
-      font-weight: 600;
-    }
-
-    #records-list, #modal-records-list {
-      max-height: 180px;
-      overflow-y: auto;
-      padding-right: 5px;
-    }
-
-    #records-list::-webkit-scrollbar, #modal-records-list::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    #records-list::-webkit-scrollbar-thumb, #modal-records-list::-webkit-scrollbar-thumb {
-      background: #EBE3DE;
-      border-radius: 4px;
-    }
-
-    .record-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #FAF6F3;
-      padding: 12px 15px;
-      border-radius: 12px;
-      margin-bottom: 8px;
-      font-size: 14px;
-      transition: transform 0.2s;
-    }
-
+    #today-records-container, #modal-records-container { width: 100%; margin-top: 10px; border-top: 1px solid #EBE3DE; padding-top: 20px; }
+    .records-title { color: #8C7D73; font-size: 14px; margin-top: 0; margin-bottom: 15px; font-weight: 600; }
+    #records-list, #modal-records-list { max-height: 180px; overflow-y: auto; padding-right: 5px; }
+    #records-list::-webkit-scrollbar, #modal-records-list::-webkit-scrollbar { width: 4px; }
+    #records-list::-webkit-scrollbar-track, #modal-records-list::-webkit-scrollbar-track { background: transparent; }
+    #records-list::-webkit-scrollbar-thumb, #modal-records-list::-webkit-scrollbar-thumb { background: #EBE3DE; border-radius: 4px; }
+    
+    .record-item { display: flex; justify-content: space-between; align-items: center; background: #FAF6F3; padding: 12px 15px; border-radius: 12px; margin-bottom: 8px; font-size: 14px; transition: transform 0.2s; }
     .record-item:hover { transform: translateX(2px); }
+    
+    .record-info-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+    .record-name { display: flex; align-items: center; gap: 10px; color: #5A504A; font-weight: 500; width: 100%; }
+    .record-time-span { font-size: 12px; color: #A0958F; margin-left: 22px; font-family: tabular-nums; }
 
-    .record-info-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .record-name {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #5A504A;
-      font-weight: 500;
-      width: 100%;
-    }
-
-    .record-time-span {
-      font-size: 12px;
-      color: #A0958F;
-      margin-left: 22px;
-      font-family: tabular-nums;
-    }
-
-    .record-color-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      flex-shrink: 0;
-    }
-
-    .record-name-text {
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      cursor: text;
-      transition: 0.2s;
-    }
-
+    .record-color-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; }
+    .record-name-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: text; transition: 0.2s; }
     .record-name-text:hover { color: #D4BBAA; }
-
-    .record-name-input {
-      flex: 1;
-      border: 1px solid #D4BBAA;
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 14px;
-      color: #5A504A;
-      background: #FFFFFF;
-      outline: none;
-      margin-left: -8px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .record-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-      margin-left: 10px;
-    }
-
-    .record-time {
-      color: #8C7D73;
-      font-family: tabular-nums;
-      font-weight: 500;
-    }
-
-    .edit-btn, .delete-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #A0958F;
-      font-size: 15px;
-      padding: 0 4px;
-      transition: 0.2s;
-      outline: none;
-    }
-
+    .record-name-input { flex: 1; border: 1px solid #D4BBAA; border-radius: 6px; padding: 4px 8px; font-size: 14px; color: #5A504A; background: #FFFFFF; outline: none; margin-left: -8px; width: 100%; box-sizing: border-box; }
+    
+    .record-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: 10px; }
+    .record-time { color: #8C7D73; font-family: tabular-nums; font-weight: 500; }
+    
+    .edit-btn, .delete-btn { background: none; border: none; cursor: pointer; color: #A0958F; font-size: 15px; padding: 0 4px; transition: 0.2s; outline: none; }
     .edit-btn:hover { color: #5A504A; transform: scale(1.1); }
     .delete-btn:hover { color: #D98880; transform: scale(1.1); }
+    
+    .empty-records { text-align: center; color: #A0958F; font-size: 13px; padding: 15px 0; background: #FAF6F3; border-radius: 12px; border: 1px dashed #EBE3DE; }
 
-    .empty-records {
-      text-align: center;
-      color: #A0958F;
-      font-size: 13px;
-      padding: 15px 0;
-      background: #FAF6F3;
-      border-radius: 12px;
-      border: 1px dashed #EBE3DE;
-    }
-
-    .heatmap-card {
-      width: 100%;
-      max-width: 600px;
-      padding: 30px;
-      border-radius: 24px;
-      background: #FFFFFF;
-      box-shadow: 0 12px 35px rgba(160, 145, 135, 0.15);
-      box-sizing: border-box;
-    }
-
-    .year-selector {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .year-btn {
-      background: #FAF6F3;
-      border: none;
-      width: 36px;
-      height: 36px;
-      border-radius: 18px;
-      font-size: 18px;
-      color: #8C7D73;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
+    .heatmap-card { width: 100%; max-width: 600px; padding: 30px; border-radius: 24px; background: #FFFFFF; box-shadow: 0 12px 35px rgba(160, 145, 135, 0.15); box-sizing: border-box; }
+    .year-selector { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 20px; }
+    .year-btn { background: #FAF6F3; border: none; width: 36px; height: 36px; border-radius: 18px; font-size: 18px; color: #8C7D73; cursor: pointer; transition: 0.2s;}
     .year-btn:hover:not(:disabled) { background: #EBE3DE; }
+    .year-btn:disabled, .stats-btn:disabled { color: #EBE3DE !important; cursor: not-allowed !important; background: transparent !important; border-color: transparent !important;}
+    .current-year { font-size: 24px; font-weight: 600; color: #4A403A; }
 
-    .year-btn:disabled, .stats-btn:disabled {
-      color: #EBE3DE !important;
-      cursor: not-allowed !important;
-      background: transparent !important;
-      border-color: transparent !important;
-    }
-
-    .current-year {
-      font-size: 24px;
-      font-weight: 600;
-      color: #4A403A;
-    }
-
-    .monthly-stats-section {
-      margin-bottom: 30px;
-      background: #FAF6F3;
-      padding: 20px;
-      border-radius: 20px;
-      border: 1px solid #EBE3DE;
-    }
-
-    .stats-header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 15px;
-    }
-
-    .stats-btn {
-      background: #FFFFFF;
-      border: 1px solid #EBE3DE;
-      width: 28px;
-      height: 28px;
-      border-radius: 14px;
-      font-size: 14px;
-      color: #8C7D73;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .stats-btn:hover:not(:disabled) {
-      background: #EBE3DE;
-      color: #4A403A;
-    }
-
-    .stats-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #5A504A;
-    }
-
-    .monthly-stats-grid {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: space-between;
-    }
-
-    .monthly-stats-card {
-      flex: 1;
-      min-width: 100px;
-      background: #FFFFFF;
-      padding: 15px 10px;
-      border-radius: 16px;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-    }
-
-    .monthly-stats-value {
-      font-size: 20px;
-      font-weight: 600;
-      color: #5A504A;
-      font-family: tabular-nums;
-      margin-bottom: 4px;
-    }
-
-    .monthly-stats-label {
-      font-size: 12px;
-      color: #8C7D73;
-      font-weight: 500;
-    }
-
-    .jump-btn-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 18px;
-    }
-
-    .jump-btn {
-      background: #FFFFFF;
-      border: 1px solid #EBE3DE;
-      padding: 8px 24px;
-      border-radius: 16px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #8C7D73;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-    }
-
-    .jump-btn:hover {
-      background: #FAF6F3;
-      color: #5A504A;
-      border-color: #D4BBAA;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.05);
-    }
+    .monthly-stats-section { margin-bottom: 30px; background: #FAF6F3; padding: 20px; border-radius: 20px; border: 1px solid #EBE3DE; }
+    .stats-header { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; }
+    .stats-btn { background: #FFFFFF; border: 1px solid #EBE3DE; width: 28px; height: 28px; border-radius: 14px; font-size: 14px; color: #8C7D73; cursor: pointer; transition: 0.2s; }
+    .stats-btn:hover:not(:disabled) { background: #EBE3DE; color: #4A403A; }
+    .stats-title { font-size: 16px; font-weight: 600; color: #5A504A; }
+    
+    .monthly-stats-grid { display: flex; gap: 12px; flex-wrap: wrap; justify-content: space-between; }
+    .monthly-stats-card { flex: 1; min-width: 100px; background: #FFFFFF; padding: 15px 10px; border-radius: 16px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+    .monthly-stats-value { font-size: 20px; font-weight: 600; color: #5A504A; font-family: tabular-nums; margin-bottom: 4px; }
+    .monthly-stats-label { font-size: 12px; color: #8C7D73; font-weight: 500; }
+    
+    .jump-btn-container { display: flex; justify-content: center; margin-top: 18px; }
+    .jump-btn { background: #FFFFFF; border: 1px solid #EBE3DE; padding: 8px 24px; border-radius: 16px; font-size: 13px; font-weight: 500; color: #8C7D73; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+    .jump-btn:hover { background: #FAF6F3; color: #5A504A; border-color: #D4BBAA; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.05); }
 
     .month-container { margin-bottom: 40px; }
-
-    .month-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #8C7D73;
-      margin-bottom: 15px;
-      padding-left: 5px;
-      border-left: 4px solid #8FB9A8;
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-    }
-
-    .weekday-header {
-      text-align: center;
-      font-size: 12px;
-      color: #A0958F;
-      font-weight: 500;
-      margin-bottom: 5px;
-    }
-
-    .day-cell {
-      aspect-ratio: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    .mini-ring {
-      width: 80%;
-      height: 80%;
-      border-radius: 50%;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.2s;
-      background: #EBE3DE;
-    }
-
-    .mini-ring:hover {
-      transform: scale(1.2);
-      z-index: 10;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    }
-
-    .mini-ring::after {
-      content: '';
-      position: absolute;
-      top: 25%;
-      left: 25%;
-      width: 50%;
-      height: 50%;
-      background: #FFFFFF;
-      border-radius: 50%;
-    }
-
-    .heatmap-tooltip {
-      position: absolute;
-      bottom: 120%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #4A403A;
-      color: white;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      white-space: nowrap;
-      display: none;
-      pointer-events: none;
-      z-index: 100;
-    }
-
+    .month-title { font-size: 18px; font-weight: 600; color: #8C7D73; margin-bottom: 15px; padding-left: 5px; border-left: 4px solid #8FB9A8; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+    .weekday-header { text-align: center; font-size: 12px; color: #A0958F; font-weight: 500; margin-bottom: 5px; }
+    
+    .day-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+    .mini-ring { width: 80%; height: 80%; border-radius: 50%; position: relative; cursor: pointer; transition: transform 0.2s; background: #EBE3DE; }
+    .mini-ring:hover { transform: scale(1.2); z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .mini-ring::after { content: ''; position: absolute; top: 25%; left: 25%; width: 50%; height: 50%; background: #FFFFFF; border-radius: 50%; }
+    
+    .heatmap-tooltip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: #4A403A; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap; display: none; pointer-events: none; z-index: 100; }
     .mini-ring:hover .heatmap-tooltip { display: block; }
 
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(5px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-    }
-
-    .modal-card {
-      background: #FFFFFF;
-      padding: 30px;
-      border-radius: 24px;
-      width: 380px;
-      position: relative;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      max-height: 90vh;
-      overflow-y: auto;
-      box-sizing: border-box;
-    }
-
-    @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: #FAF6F3;
-      border: none;
-      width: 30px;
-      height: 30px;
-      border-radius: 15px;
-      font-size: 16px;
-      color: #8C7D73;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .close-btn:hover {
-      background: #EBE3DE;
-      color: #4A403A;
-    }
-
-    .modal-title {
-      margin-top: 0;
-      color: #4A403A;
-      font-weight: 600;
-      text-align: center;
-      font-size: 20px;
-      margin-bottom: -10px;
-    }
-
-    .modal-theme-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 20px;
-      margin-bottom: 5px;
-      font-weight: 500;
-      font-size: 14px;
-      color: #8C7D73;
-    }
-
-    .modal-theme-container select {
-      padding: 4px 10px;
-      border-radius: 6px;
-      border: 1px solid #EBE3DE;
-      background: #FAF6F3;
-      color: #5A504A;
-      font-size: 13px;
-      outline: none;
-      cursor: pointer;
-    }
-
-    #modal-chart-container {
-      width: 100%;
-      height: 260px;
-      margin-top: 5px;
-    }
-
-    #modal-summary-container {
-      width: 100%;
-      margin: 5px 0 20px 0;
-      padding: 15px 0;
-      background: #FAF6F3;
-      border-radius: 16px;
-      display: flex;
-      justify-content: space-evenly;
-      align-items: center;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
-      border: 1px solid #EBE3DE;
-      box-sizing: border-box;
-    }
-
-    .summary-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: 1;
-      border-right: 1px solid #EBE3DE;
-    }
-
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 999; }
+    .modal-card { background: #FFFFFF; padding: 30px; border-radius: 24px; width: 380px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    
+    .close-btn { position: absolute; top: 20px; right: 20px; background: #FAF6F3; border: none; width: 30px; height: 30px; border-radius: 15px; font-size: 16px; color: #8C7D73; cursor: pointer; transition: 0.2s; }
+    .close-btn:hover { background: #EBE3DE; color: #4A403A; }
+    
+    .modal-title { margin-top: 0; color: #4A403A; font-weight: 600; text-align: center; font-size: 20px; margin-bottom: -10px;}
+    .modal-theme-container { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; margin-bottom: 5px; font-weight: 500; font-size: 14px; color: #8C7D73; }
+    .modal-theme-container select { padding: 4px 10px; border-radius: 6px; border: 1px solid #EBE3DE; background: #FAF6F3; color: #5A504A; font-size: 13px; outline: none; cursor: pointer; }
+    
+    #modal-chart-container { width: 100%; height: 260px; margin-top: 5px; }
+    #modal-summary-container { width: 100%; margin: 5px 0 20px 0; padding: 15px 0; background: #FAF6F3; border-radius: 16px; display: flex; justify-content: space-evenly; align-items: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); border: 1px solid #EBE3DE; box-sizing: border-box; }
+    .summary-item { display: flex; flex-direction: column; align-items: center; flex: 1; border-right: 1px solid #EBE3DE; }
     .summary-item:last-child { border-right: none; }
+    .summary-value { font-size: 18px; font-weight: 600; color: #5A504A; font-family: tabular-nums; margin-bottom: 4px; }
+    .summary-label { font-size: 12px; color: #8C7D73; font-weight: 500; }
 
-    .summary-value {
-      font-size: 18px;
-      font-weight: 600;
-      color: #5A504A;
-      font-family: tabular-nums;
-      margin-bottom: 4px;
-    }
-
-    .summary-label {
-      font-size: 12px;
-      color: #8C7D73;
-      font-weight: 500;
-    }
-
-    .confirm-card {
-      width: 300px;
-      text-align: center;
-      padding: 35px 25px 25px 25px;
-    }
-
-    .confirm-title {
-      color: #4A403A;
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0 0 12px 0;
-    }
-
-    .confirm-desc {
-      color: #8C7D73;
-      font-size: 14px;
-      margin-bottom: 25px;
-      line-height: 1.5;
-    }
-
-    .confirm-btn-group {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-    }
-
-    .confirm-btn {
-      flex: 1;
-      padding: 12px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-      outline: none;
-    }
-
-    .btn-cancel {
-      border: 1px solid #EBE3DE;
-      background: #FFFFFF;
-      color: #8C7D73;
-    }
-
-    .btn-cancel:hover {
-      background: #FAF6F3;
-      color: #5A504A;
-    }
-
-    .btn-danger {
-      border: none;
-      background: #D98880;
-      color: #FFFFFF;
-      box-shadow: 0 4px 10px rgba(217,136,128,0.2);
-    }
-
-    .btn-danger:hover {
-      background: #C59494;
-      box-shadow: 0 6px 15px rgba(217,136,128,0.3);
-    }
-
-    .loading-mask {
-      position: fixed;
-      inset: 0;
-      background: rgba(242, 235, 229, 0.65);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1200;
-      color: #5A504A;
-      font-weight: 600;
-      font-size: 18px;
-    }
+    .confirm-card { width: 300px; text-align: center; padding: 35px 25px 25px 25px; }
+    .confirm-title { color: #4A403A; font-size: 18px; font-weight: 600; margin: 0 0 12px 0; }
+    .confirm-desc { color: #8C7D73; font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
+    .confirm-btn-group { display: flex; gap: 15px; justify-content: center; }
+    .confirm-btn { flex: 1; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; outline: none; }
+    .btn-cancel { border: 1px solid #EBE3DE; background: #FFFFFF; color: #8C7D73; }
+    .btn-cancel:hover { background: #FAF6F3; color: #5A504A; }
+    .btn-danger { border: none; background: #D98880; color: #FFFFFF; box-shadow: 0 4px 10px rgba(217,136,128,0.2); }
+    .btn-danger:hover { background: #C59494; box-shadow: 0 6px 15px rgba(217,136,128,0.3); }
 
     @media (max-width: 640px) {
       .card, .modal-card, .heatmap-card { width: 100%; }
@@ -828,12 +155,14 @@
   <h1>ColorTime</h1>
 
   <div class="top-auth-bar">
-    <div class="auth-row">
+    <div class="auth-row" id="authFormGroup">
       <input type="email" id="authEmail" placeholder="邮箱" />
       <input type="password" id="authPassword" placeholder="密码（至少6位）" />
       <button class="auth-btn primary" id="registerBtn">注册</button>
       <button class="auth-btn secondary" id="loginBtn">登录</button>
-      <button class="auth-btn danger" id="logoutBtn" style="display:none;">退出</button>
+    </div>
+    <div class="auth-row" id="logoutGroup" style="display:none; justify-content: flex-end;">
+      <button class="auth-btn danger" id="logoutBtn">退出登录</button>
     </div>
     <div class="auth-status">
       <span id="authStatusText">当前未登录，数据默认保存在本机浏览器。</span>
@@ -862,7 +191,6 @@
           <option value="grey">极简高级灰</option>
         </select>
       </div>
-
       <div class="timer-display" id="timer">00:00:00</div>
       <div class="controls">
         <button id="startBtn" class="action-btn" onclick="startTimer()">开始</button>
@@ -874,10 +202,9 @@
     <div class="card" id="today-export-area">
       <button class="export-btn" onclick="exportTodayImage()">导出图片 ↓</button>
       <button class="clear-data-btn" onclick="openClearConfirmModal()">清空记录</button>
-
-      <h3 class="card-title">今日色彩时间环</h3>
+      
       <div id="chart-container"></div>
-
+      
       <div id="today-records-container">
         <h4 class="records-title">今日记录明细</h4>
         <div id="records-list"></div>
@@ -891,3 +218,619 @@
         <button class="year-btn" onclick="changeYear(-1)">❮</button>
         <span class="current-year" id="displayYear">2026</span>
         <button class="year-btn" id="nextYearBtn" onclick="changeYear(1)" disabled>❯</button>
+      </div>
+
+      <div class="monthly-stats-section">
+        <div class="stats-header">
+          <button class="stats-btn" onclick="changeStatsMonth(-1)">❮</button>
+          <span class="stats-title" id="statsTitle">3月 专注摘要</span>
+          <button class="stats-btn" id="nextMonthBtn" onclick="changeStatsMonth(1)">❯</button>
+        </div>
+        <div class="monthly-stats-grid" id="monthlyStatsGrid"></div>
+        <div class="jump-btn-container">
+          <button class="jump-btn" id="jumpToMonthBtn" onclick="scrollToCurrentMonth()">定位至本月日历 ↓</button>
+        </div>
+      </div>
+
+      <div id="heatmapScrollContainer"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detailModal" onclick="closeModalOnOverlay(event)">
+    <div class="modal-card" id="modal-export-area">
+      <button class="export-btn" onclick="exportHistoryModalImage()">导出图片 ↓</button>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+      
+      <h3 class="modal-title" id="modalTitle"></h3>
+      
+      <div class="modal-theme-container" id="modalThemeContainer">
+        <span>当日色系：</span>
+        <select id="modalThemeSelect" onchange="changeModalTheme()">
+          <option value="blue">静谧莫兰迪蓝</option>
+          <option value="green">生机莫兰迪绿</option>
+          <option value="pink">温婉莫兰迪粉</option>
+          <option value="coffee">沉稳暖咖色</option>
+          <option value="purple">梦幻莫兰迪紫</option>
+          <option value="orange">秋日暖阳橙</option>
+          <option value="teal">深邃松石绿</option>
+          <option value="grey">极简高级灰</option>
+        </select>
+      </div>
+
+      <div id="modal-chart-container"></div>
+      <div id="modal-summary-container"></div>
+      <div id="modal-records-container">
+        <h4 class="records-title">当日记录明细</h4>
+        <div id="modal-records-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="confirmModal" onclick="closeConfirmOnOverlay(event)" style="z-index: 1000;">
+    <div class="modal-card confirm-card">
+      <h3 class="confirm-title">删除这条记录？</h3>
+      <p class="confirm-desc">删除后，本次专注时长将不再计入统计，且无法恢复。</p>
+      <div class="confirm-btn-group">
+        <button class="confirm-btn btn-cancel" onclick="closeConfirmModal()">取消</button>
+        <button class="confirm-btn btn-danger" onclick="executeDeleteTask()">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="clearConfirmModal" onclick="closeClearConfirmOnOverlay(event)" style="z-index: 1000;">
+    <div class="modal-card confirm-card">
+      <h3 class="confirm-title">清空今日记录？</h3>
+      <p class="confirm-desc">清空后，今日所有的专注时长将归零且无法恢复。</p>
+      <div class="confirm-btn-group">
+        <button class="confirm-btn btn-cancel" onclick="closeClearConfirmModal()">取消</button>
+        <button class="confirm-btn btn-danger" onclick="executeClearTodayData()">清空</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // 1. 从 CDN 导入所需的 Firebase 模块 (确保版本一致)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    // 2. 你的 Firebase 专属配置
+    const firebaseConfig = {
+      apiKey: "AIzaSyDZ28pgDy090OJ00GWv3Bq3QnFRoXkjDhs",
+      authDomain: "colortime-298eb.firebaseapp.com",
+      projectId: "colortime-298eb",
+      storageBucket: "colortime-298eb.firebasestorage.app",
+      messagingSenderId: "117331812952",
+      appId: "1:117331812952:web:87e0339fc37458f8fc202d",
+      measurementId: "G-SSJ4ZXM0QP"
+    };
+
+    // 3. 初始化 Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ================= 原有核心逻辑与状态 =================
+    const colorPalettes = { blue: ['#698396', '#7A93A6', '#8EA4B5', '#A3B8C7', '#B6C9D8'], green: ['#798C73', '#8B9F84', '#9FB498', '#B1C4AA', '#C3D4BC'], pink: ['#B48282', '#C59494', '#D6A8A8', '#E2BDBD', '#EFCBCA'], coffee: ['#9C7A58', '#B08D6A', '#C4A484', '#D4B89C', '#E2CDB3'], purple: ['#8E7A96', '#9B8A9F', '#A899AB', '#B4A8B6', '#C1B6C1'], orange: ['#C98A6C', '#D0997F', '#D7A792', '#DEB6A5', '#E4C5B8'], teal: ['#5C8A8A', '#6B9999', '#7BA8A8', '#8BB6B6', '#9CC5C5'], grey: ['#7A7A7A', '#8A8A8A', '#9A9A9A', '#AAAAAA', '#BABABA'] };
+    const centerTextColors = { blue: '#4A6982', green: '#5A6E55', pink: '#966363', coffee: '#7A5837', purple: '#6C5B75', orange: '#A66A4D', teal: '#456D6D', grey: '#555555', default: '#A0958F' };
+
+    let myChart = echarts.init(document.getElementById('chart-container'));
+    let modalChart = null; 
+    let currentHeatmapYear = new Date().getFullYear();
+    let currentHeatmapMonth = new Date().getMonth() + 1; 
+    document.getElementById('displayYear').innerText = currentHeatmapYear;
+    
+    let timerInterval = null; let isRunning = false; 
+    let historyData = {}; let chartData = []; 
+    let startTime = 0; let accumulatedSeconds = 0; let seconds = 0;             
+    let currentModalDateKey = null; let pendingDeleteTarget = null; let firstStartTime = null; 
+    
+    // 全局当前登录用户
+    let currentUser = null;
+
+    // 工具函数
+    function getDateKey(year, month, day) { return year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0'); }
+    function getTodayKey() { let today = new Date(); return getDateKey(today.getFullYear(), today.getMonth() + 1, today.getDate()); }
+    function formatTime(sec) { let h = Math.floor(sec/3600).toString().padStart(2,'0'); let m = Math.floor((sec%3600)/60).toString().padStart(2,'0'); return `${h}:${m}:${(sec%60).toString().padStart(2,'0')}`; }
+
+    // ================= Firebase 数据同步核心逻辑 =================
+    // 替代原有的 saveDataLocally，加入云端同步
+    async function saveAndSyncData() {
+        let todayKey = getTodayKey();
+        if (chartData.length > 0) {
+            historyData[todayKey] = { theme: document.getElementById('themeSelect').value, data: chartData };
+        } else {
+            delete historyData[todayKey];
+        }
+        
+        // 永远先保存在本地（兜底）
+        localStorage.setItem('colorTime_history', JSON.stringify(historyData));
+
+        // 如果用户已登录，推送数据到 Firestore
+        if (currentUser) {
+            const syncStatus = document.getElementById('syncStatusText');
+            syncStatus.innerText = '同步中...';
+            try {
+                await setDoc(doc(db, "users", currentUser.uid), { historyData: historyData });
+                syncStatus.innerText = '已同步至云端';
+            } catch (error) {
+                console.error("同步失败:", error);
+                syncStatus.innerText = '云端同步失败';
+            }
+        }
+    }
+
+    // ================= Firebase 身份验证逻辑 =================
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      const statusText = document.getElementById('authStatusText');
+      const syncStatus = document.getElementById('syncStatusText');
+      
+      if (user) {
+        // 已登录 UI 状态
+        document.getElementById('authFormGroup').style.display = 'none';
+        document.getElementById('logoutGroup').style.display = 'flex';
+        statusText.innerText = `已登录: ${user.email}`;
+        syncStatus.innerText = '拉取云端数据...';
+        
+        // 从云端拉取数据覆盖本地
+        try {
+            const docSnap = await getDoc(doc(db, "users", user.uid));
+            if (docSnap.exists() && docSnap.data().historyData) {
+                historyData = docSnap.data().historyData;
+                localStorage.setItem('colorTime_history', JSON.stringify(historyData));
+            }
+            syncStatus.innerText = '数据已同步';
+        } catch (e) {
+            console.error('拉取数据失败', e);
+            syncStatus.innerText = '拉取云端失败，使用本地数据';
+        }
+        initDataCore(); // 重新渲染界面
+      } else {
+        // 未登录 UI 状态
+        document.getElementById('authFormGroup').style.display = 'flex';
+        document.getElementById('logoutGroup').style.display = 'none';
+        statusText.innerText = '当前未登录，数据默认保存在本机浏览器。';
+        syncStatus.innerText = '未同步';
+        
+        // 如果是从登录态退出，不清空本地，直接用本地数据继续渲染
+        initDataCore(); 
+      }
+    });
+
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+      if(!email || !password) return alert("请输入邮箱和密码");
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("注册成功并已登录！现有本地数据将同步至云端。");
+        // 注册成功后，主动把本地已有的数据推上去
+        saveAndSyncData(); 
+      } catch (error) {
+        alert("注册失败: " + error.message);
+      }
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+      if(!email || !password) return alert("请输入邮箱和密码");
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("登录成功！");
+      } catch (error) {
+        alert("登录失败: " + error.message);
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        alert("已退出登录");
+      } catch (error) {
+        alert("退出失败: " + error.message);
+      }
+    });
+
+    // ================= 业务逻辑函数 =================
+
+    function switchView(viewName) {
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.view-container').forEach(view => view.classList.remove('active'));
+        if(viewName === 'timer') {
+            document.querySelectorAll('.nav-btn')[0].classList.add('active');
+            document.getElementById('timerView').classList.add('active');
+        } else {
+            document.querySelectorAll('.nav-btn')[1].classList.add('active');
+            document.getElementById('historyView').classList.add('active');
+            updateNavigationButtonsState();
+            renderHeatmap(currentHeatmapYear); 
+            renderMonthlyStats(); 
+        }
+    }
+
+    function initDataCore() {
+        let savedHistory = localStorage.getItem('colorTime_history');
+        if (savedHistory) { historyData = JSON.parse(savedHistory); } else { historyData = {}; }
+
+        let todayKey = getTodayKey();
+        if (historyData[todayKey]) {
+            chartData = historyData[todayKey].data || [];
+            let savedTheme = historyData[todayKey].theme;
+            if (savedTheme) { document.getElementById('themeSelect').value = savedTheme; }
+        } else {
+            chartData = []; document.getElementById('themeSelect').disabled = false; 
+        }
+        updateChart();
+        updateNavigationButtonsState(); 
+    }
+
+    function reassignColorsForDay(dateKey, newTheme) {
+        let isToday = (dateKey === getTodayKey());
+        if (isToday) {
+            document.getElementById('themeSelect').value = newTheme;
+            if (chartData.length > 0) {
+                let themeColors = colorPalettes[newTheme];
+                chartData.forEach((item, index) => { item.itemStyle.color = themeColors[index % themeColors.length]; });
+                saveAndSyncData(); 
+            }
+        } else {
+            let dayRecord = historyData[dateKey];
+            if (dayRecord && dayRecord.data && dayRecord.data.length > 0) {
+                dayRecord.theme = newTheme;
+                let themeColors = colorPalettes[newTheme];
+                dayRecord.data.forEach((item, index) => { item.itemStyle.color = themeColors[index % themeColors.length]; });
+                saveAndSyncData();
+            }
+        }
+        refreshAllUI(dateKey); 
+    }
+
+    function changeTodayTheme() { let newTheme = document.getElementById('themeSelect').value; reassignColorsForDay(getTodayKey(), newTheme); }
+    function changeModalTheme() { if (!currentModalDateKey) return; let newTheme = document.getElementById('modalThemeSelect').value; reassignColorsForDay(currentModalDateKey, newTheme); }
+
+    function handleDeleteTask(dateKey, index) {
+        pendingDeleteTarget = { dateKey, index };
+        document.getElementById('confirmModal').style.display = 'flex';
+    }
+    function closeConfirmModal() { document.getElementById('confirmModal').style.display = 'none'; pendingDeleteTarget = null; }
+    function closeConfirmOnOverlay(event) { if (event.target.id === 'confirmModal') closeConfirmModal(); }
+    
+    function executeDeleteTask() {
+        if (!pendingDeleteTarget) return;
+        let { dateKey, index } = pendingDeleteTarget;
+        let dayRecord = historyData[dateKey];
+        if (dayRecord && dayRecord.data[index]) {
+            dayRecord.data.splice(index, 1);
+            if (dayRecord.data.length === 0) {
+                delete historyData[dateKey];
+                if (dateKey === getTodayKey()) { chartData = []; }
+            } else {
+                if (dateKey === getTodayKey()) chartData = dayRecord.data; 
+                let themeColors = colorPalettes[dayRecord.theme];
+                dayRecord.data.forEach((item, i) => { item.itemStyle.color = themeColors[i % themeColors.length]; });
+            }
+            saveAndSyncData();
+            refreshAllUI(dateKey);
+        }
+        closeConfirmModal();
+    }
+
+    function openClearConfirmModal() { document.getElementById('clearConfirmModal').style.display = 'flex'; }
+    function closeClearConfirmModal() { document.getElementById('clearConfirmModal').style.display = 'none'; }
+    function closeClearConfirmOnOverlay(event) { if (event.target.id === 'clearConfirmModal') closeClearConfirmModal(); }
+    
+    function executeClearTodayData() {
+        clearInterval(timerInterval);
+        isRunning = false; seconds = 0; accumulatedSeconds = 0; startTime = 0; firstStartTime = null; 
+
+        document.getElementById('timer').innerText = formatTime(seconds); 
+        document.getElementById('startBtn').style.display = 'inline-block';
+        document.getElementById('startBtn').innerText = '开始';
+        document.getElementById('pauseBtn').style.display = 'none';
+        document.getElementById('taskName').value = '';
+
+        chartData = []; let todayKey = getTodayKey(); delete historyData[todayKey]; 
+        saveAndSyncData();
+        
+        document.getElementById('themeSelect').disabled = false; 
+        refreshAllUI(todayKey);
+        closeClearConfirmModal(); 
+    }
+
+    function refreshAllUI(targetDateKey) {
+        if (targetDateKey === getTodayKey()) { updateChart(); }
+        if (document.getElementById('historyView').classList.contains('active')) { renderHeatmap(currentHeatmapYear); renderMonthlyStats(); }
+        if (document.getElementById('detailModal').style.display === 'flex' && currentModalDateKey === targetDateKey) { refreshModal(targetDateKey); }
+    }
+
+    function createRecordItem(item, index, dateKey) {
+        const recordEl = document.createElement('div'); recordEl.className = 'record-item';
+        const infoGroupEl = document.createElement('div'); infoGroupEl.className = 'record-info-group';
+        const nameEl = document.createElement('div'); nameEl.className = 'record-name';
+        const dotEl = document.createElement('span'); dotEl.className = 'record-color-dot';
+        dotEl.style.backgroundColor = item.itemStyle.color; 
+        
+        const nameText = document.createElement('span'); nameText.className = 'record-name-text';
+        nameText.innerText = item.name; nameText.title = "点击直接修改名称"; 
+        
+        const nameInput = document.createElement('input'); nameInput.type = 'text';
+        nameInput.className = 'record-name-input'; nameInput.style.display = 'none';
+
+        nameEl.appendChild(dotEl); nameEl.appendChild(nameText); nameEl.appendChild(nameInput);
+        infoGroupEl.appendChild(nameEl);
+
+        if (item.startTimeStr && item.endTimeStr) {
+            const timeSpanEl = document.createElement('div'); timeSpanEl.className = 'record-time-span';
+            timeSpanEl.innerText = `${item.startTimeStr} - ${item.endTimeStr}`;
+            infoGroupEl.appendChild(timeSpanEl);
+        }
+
+        const rightEl = document.createElement('div'); rightEl.className = 'record-right';
+        const timeEl = document.createElement('div'); timeEl.className = 'record-time';
+        timeEl.innerText = formatTime(item.value);
+
+        const editBtn = document.createElement('button'); editBtn.className = 'edit-btn'; editBtn.innerText = '✎'; editBtn.title = '修改名称';
+        
+        let isSaving = false; 
+        const startEdit = () => { nameText.style.display = 'none'; nameInput.style.display = 'block'; nameInput.value = item.name; nameInput.focus(); nameInput.setSelectionRange(nameInput.value.length, nameInput.value.length); };
+        const saveEdit = () => {
+            if (isSaving || nameInput.style.display === 'none') return;
+            isSaving = true; let newName = nameInput.value.trim() || '未命名任务'; let dayRecord = historyData[dateKey];
+            if (dayRecord && dayRecord.data[index]) { dayRecord.data[index].name = newName; saveAndSyncData(); refreshAllUI(dateKey); }
+        };
+        const cancelEdit = () => { isSaving = true; nameInput.style.display = 'none'; nameText.style.display = 'block'; };
+
+        editBtn.onclick = startEdit; nameText.onclick = startEdit; 
+        nameInput.onblur = () => { if (!isSaving) saveEdit(); };
+        nameInput.onkeydown = (e) => { if (e.key === 'Enter') saveEdit(); else if (e.key === 'Escape') cancelEdit(); };
+
+        const delBtn = document.createElement('button'); delBtn.className = 'delete-btn'; delBtn.innerHTML = '×'; delBtn.title = '删除记录';
+        delBtn.onclick = () => handleDeleteTask(dateKey, index);
+
+        rightEl.appendChild(timeEl); rightEl.appendChild(editBtn); rightEl.appendChild(delBtn);
+        recordEl.appendChild(infoGroupEl); recordEl.appendChild(rightEl);
+        return recordEl;
+    }
+
+    function renderRecordsList() {
+        const listContainer = document.getElementById('records-list'); listContainer.innerHTML = ''; 
+        if (!chartData || chartData.length === 0) { listContainer.innerHTML = '<div class="empty-records">今天还没有专注记录</div>'; return; }
+        let todayKey = getTodayKey();
+        chartData.forEach((item, index) => { listContainer.appendChild(createRecordItem(item, index, todayKey)); });
+        listContainer.scrollTop = listContainer.scrollHeight;
+    }
+
+    function updateChart() {
+        let totalSeconds = chartData.reduce((sum, item) => sum + item.value, 0);
+        let timeStr = chartData.length > 0 ? formatTime(totalSeconds) : "00:00:00";
+        let centerColor = chartData.length > 0 ? centerTextColors[document.getElementById('themeSelect').value] : centerTextColors.default;
+        let today = new Date(); let dateLabel = (today.getMonth() + 1) + '月' + today.getDate() + '日';
+
+        myChart.setOption({
+            title: { text: '{date|' + dateLabel + '}\n{time|' + timeStr + '}', left: 'center', top: 'center', textStyle: { rich: { date: { color: '#8C7D73', fontSize: 15, fontWeight: '500', padding: [0, 0, 8, 0] }, time: { color: centerColor, fontSize: 24, fontWeight: '600', fontFamily: 'tabular-nums' } } } },
+            tooltip: { trigger: 'item', formatter: function (params) { if (params.name === '暂无数据') return params.name; return params.name + ' : ' + params.percent + '% <br/>耗时: ' + formatTime(params.value); }, backgroundColor: 'rgba(255,255,255,0.9)', textStyle: { color: '#5A504A' } },
+            series: [{ type: 'pie', radius: ['60%', '85%'], avoidLabelOverlap: false, itemStyle: { borderRadius: 10, borderColor: '#FFFFFF', borderWidth: 3 }, label: { show: false, position: 'center' }, labelLine: { show: false }, data: chartData.length > 0 ? chartData : [{value: 1, name: '暂无数据', itemStyle: {color: '#F2EBE5'}}] }]
+        });
+        renderRecordsList();
+    }
+
+    function startTimer() { 
+        if(!isRunning) { 
+            isRunning = true; startTime = Date.now(); 
+            if (!firstStartTime) firstStartTime = startTime;
+            document.getElementById('startBtn').style.display = 'none'; document.getElementById('pauseBtn').style.display = 'inline-block'; 
+            timerInterval = setInterval(() => {
+                let currentElapsed = Math.floor((Date.now() - startTime) / 1000); seconds = accumulatedSeconds + currentElapsed;
+                document.getElementById('timer').innerText = formatTime(seconds);
+            }, 500); 
+        } 
+    }
+
+    function pauseTimer() { 
+        if(isRunning) {
+            isRunning = false; clearInterval(timerInterval); 
+            let currentElapsed = Math.floor((Date.now() - startTime) / 1000); accumulatedSeconds += currentElapsed; seconds = accumulatedSeconds; 
+            document.getElementById('startBtn').style.display = 'inline-block'; document.getElementById('startBtn').innerText = '继续'; document.getElementById('pauseBtn').style.display = 'none'; 
+        }
+    }
+    
+    function stopTimer() {
+        if(!isRunning && seconds === 0) return; clearInterval(timerInterval); 
+        if (isRunning) { let currentElapsed = Math.floor((Date.now() - startTime) / 1000); seconds = accumulatedSeconds + currentElapsed; }
+        isRunning = false;
+        
+        if(seconds < 5) { 
+            alert("时间太短 (< 5秒)，未记录。"); 
+        } else {
+            let tName = document.getElementById('taskName').value.trim() || '未命名任务';
+            let currentTheme = document.getElementById('themeSelect').value;
+            let themeColors = colorPalettes[currentTheme];
+            let stableColor = themeColors[chartData.length % themeColors.length];
+            
+            let formatTimeStr = (ts) => { let d = new Date(ts); return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0'); };
+            let startTimeStr = firstStartTime ? formatTimeStr(firstStartTime) : formatTimeStr(Date.now() - seconds * 1000);
+            let endTimeStr = formatTimeStr(Date.now());
+            
+            chartData.push({ value: seconds, name: tName, itemStyle: { color: stableColor }, startTimeStr: startTimeStr, endTimeStr: endTimeStr });
+            updateChart(); saveAndSyncData(); 
+        }
+        
+        seconds = 0; accumulatedSeconds = 0; startTime = 0; firstStartTime = null;
+        document.getElementById('timer').innerText = formatTime(seconds); document.getElementById('startBtn').style.display = 'inline-block'; document.getElementById('startBtn').innerText = '开始'; document.getElementById('pauseBtn').style.display = 'none'; document.getElementById('taskName').value = '';
+    }
+
+    function getDayData(year, month, day) { let key = getDateKey(year, month, day); let dayRecord = historyData[key]; if (dayRecord && dayRecord.data && dayRecord.data.length > 0) { let totalSec = dayRecord.data.reduce((sum, item) => sum + item.value, 0); return { theme: dayRecord.theme, totalSec: totalSec, data: dayRecord.data }; } return null; }
+    function createConicGradient(dayData) { if(!dayData || dayData.data.length === 0) return '#EBE3DE'; let gradientParts = []; let currentPercent = 0; dayData.data.forEach(item => { let percent = (item.value / dayData.totalSec) * 100; let nextPercent = currentPercent + percent; gradientParts.push(`${item.itemStyle.color} ${currentPercent}% ${nextPercent}%`); currentPercent = nextPercent; }); return `conic-gradient(${gradientParts.join(', ')})`; }
+
+    function updateNavigationButtonsState() {
+        let thisYear = new Date().getFullYear(); let thisMonth = new Date().getMonth() + 1;
+        let isCurrentYear = (currentHeatmapYear >= thisYear); document.getElementById('nextYearBtn').disabled = isCurrentYear;
+        let isCurrentMonth = isCurrentYear && (currentHeatmapMonth >= thisMonth); document.getElementById('nextMonthBtn').disabled = isCurrentMonth;
+    }
+
+    function changeYear(delta) { 
+        let thisYear = new Date().getFullYear(); let targetYear = currentHeatmapYear + delta;
+        if (targetYear > thisYear) return; 
+        currentHeatmapYear = targetYear; document.getElementById('displayYear').innerText = currentHeatmapYear; 
+        updateNavigationButtonsState(); renderHeatmap(currentHeatmapYear); renderMonthlyStats();              
+    }
+
+    function changeStatsMonth(delta) {
+        let thisYear = new Date().getFullYear(); let thisMonth = new Date().getMonth() + 1;
+        let tempMonth = currentHeatmapMonth + delta; let tempYear = currentHeatmapYear;
+
+        if (tempMonth > 12) { tempMonth = 1; tempYear += 1; } else if (tempMonth < 1) { tempMonth = 12; tempYear -= 1; }
+        if (tempYear > thisYear || (tempYear === thisYear && tempMonth > thisMonth)) { return; }
+
+        currentHeatmapMonth = tempMonth;
+        if (tempYear !== currentHeatmapYear) { changeYear(tempYear - currentHeatmapYear); } else { updateNavigationButtonsState(); renderMonthlyStats(); }
+    }
+    
+    function scrollToCurrentMonth() {
+        let currentMonthDivs = document.querySelectorAll('.month-container');
+        if(currentMonthDivs[currentHeatmapMonth - 1]) { currentMonthDivs[currentHeatmapMonth - 1].scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    }
+
+    function renderMonthlyStats() {
+        document.getElementById('statsTitle').innerText = `${currentHeatmapMonth}月 专注摘要`;
+        document.getElementById('jumpToMonthBtn').innerText = `定位至 ${currentHeatmapMonth} 月日历 ↓`;
+
+        let daysInMonth = new Date(currentHeatmapYear, currentHeatmapMonth, 0).getDate();
+        let totalSec = 0; let focusDays = 0; let maxDaySec = 0; let currentStreak = 0; let maxStreak = 0;
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            let dayData = getDayData(currentHeatmapYear, currentHeatmapMonth, day);
+            if (dayData && dayData.totalSec > 0) {
+                totalSec += dayData.totalSec; focusDays++;
+                if (dayData.totalSec > maxDaySec) { maxDaySec = dayData.totalSec; }
+                currentStreak++; if (currentStreak > maxStreak) { maxStreak = currentStreak; }
+            } else { currentStreak = 0; }
+        }
+
+        const grid = document.getElementById('monthlyStatsGrid');
+        if (focusDays === 0) {
+            grid.innerHTML = `<div class="monthly-stats-card"><div class="monthly-stats-value" style="color:#A0958F;">00:00:00</div><div class="monthly-stats-label">本月总时长</div></div><div class="monthly-stats-card"><div class="monthly-stats-value" style="color:#A0958F;">0</div><div class="monthly-stats-label">专注天数</div></div><div class="monthly-stats-card"><div class="monthly-stats-value" style="color:#A0958F;">0</div><div class="monthly-stats-label">最长连续(天)</div></div><div class="monthly-stats-card"><div class="monthly-stats-value" style="color:#A0958F;">00:00:00</div><div class="monthly-stats-label">单日最高</div></div>`;
+        } else {
+            grid.innerHTML = `<div class="monthly-stats-card"><div class="monthly-stats-value">${formatTime(totalSec)}</div><div class="monthly-stats-label">本月总时长</div></div><div class="monthly-stats-card"><div class="monthly-stats-value">${focusDays}</div><div class="monthly-stats-label">专注天数</div></div><div class="monthly-stats-card"><div class="monthly-stats-value">${maxStreak}</div><div class="monthly-stats-label">最长连续(天)</div></div><div class="monthly-stats-card"><div class="monthly-stats-value">${formatTime(maxDaySec)}</div><div class="monthly-stats-label">单日最高</div></div>`;
+        }
+    }
+
+    function renderHeatmap(year) {
+        const container = document.getElementById('heatmapScrollContainer'); container.innerHTML = ''; const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+        for(let month = 1; month <= 12; month++) {
+            let monthDiv = document.createElement('div'); monthDiv.className = 'month-container'; let title = document.createElement('div'); title.className = 'month-title'; title.innerText = `${year}年 ${month}月`; monthDiv.appendChild(title); let grid = document.createElement('div'); grid.className = 'calendar-grid';
+            weekdays.forEach(wd => { let wdHeader = document.createElement('div'); wdHeader.className = 'weekday-header'; wdHeader.innerText = wd; grid.appendChild(wdHeader); });
+            let firstDay = new Date(year, month - 1, 1).getDay(); let daysInMonth = new Date(year, month, 0).getDate();
+            for(let i = 0; i < firstDay; i++) { grid.appendChild(document.createElement('div')); }
+            for(let day = 1; day <= daysInMonth; day++) {
+                let cell = document.createElement('div'); cell.className = 'day-cell'; let dayData = getDayData(year, month, day); let miniRing = document.createElement('div'); miniRing.className = 'mini-ring';
+                if(dayData) { miniRing.style.background = createConicGradient(dayData); miniRing.onclick = () => openModal(year, month, day); }
+                let tooltip = document.createElement('div'); tooltip.className = 'heatmap-tooltip'; let displayTime = dayData ? formatTime(dayData.totalSec) : '无记录'; tooltip.innerText = `${month}月${day}日: ${displayTime}`; miniRing.appendChild(tooltip); cell.appendChild(miniRing); grid.appendChild(cell);
+            }
+            monthDiv.appendChild(grid); container.appendChild(monthDiv);
+        }
+    }
+
+    function openModal(year, month, day) {
+        currentModalDateKey = getDateKey(year, month, day);
+        document.getElementById('detailModal').style.display = 'flex'; 
+        if(!modalChart) { modalChart = echarts.init(document.getElementById('modal-chart-container')); } 
+        refreshModal(currentModalDateKey);
+    }
+
+    function refreshModal(dateKey) {
+        let dayRecord = historyData[dateKey];
+        let totalSec = 0; let timeStr = "00:00:00"; let centerColor = centerTextColors.default;
+        let chartDataForModal = [{value: 1, name: '暂无数据', itemStyle: {color: '#F2EBE5'}}];
+
+        let [y, m, d] = dateKey.split('-'); let dateLabel = parseInt(m) + '月' + parseInt(d) + '日';
+        const summaryContainer = document.getElementById('modal-summary-container');
+        const modalListContainer = document.getElementById('modal-records-list');
+        const modalThemeSelect = document.getElementById('modalThemeSelect');
+        modalListContainer.innerHTML = ''; 
+
+        if (dayRecord && dayRecord.data && dayRecord.data.length > 0) {
+            totalSec = dayRecord.data.reduce((sum, item) => sum + item.value, 0); timeStr = formatTime(totalSec); centerColor = centerTextColors[dayRecord.theme]; chartDataForModal = dayRecord.data;
+            modalThemeSelect.value = dayRecord.theme; modalThemeSelect.disabled = false;
+            let totalCount = dayRecord.data.length; let maxSec = Math.max(...dayRecord.data.map(item => item.value));
+
+            summaryContainer.innerHTML = `<div class="summary-item"><div class="summary-value">${totalCount}</div><div class="summary-label">专注次数</div></div><div class="summary-item"><div class="summary-value">${formatTime(totalSec)}</div><div class="summary-label">总专注时长</div></div><div class="summary-item"><div class="summary-value">${formatTime(maxSec)}</div><div class="summary-label">最长单次</div></div>`;
+            dayRecord.data.forEach((item, index) => { modalListContainer.appendChild(createRecordItem(item, index, dateKey)); });
+        } else {
+            modalThemeSelect.value = 'blue'; modalThemeSelect.disabled = true;
+            summaryContainer.innerHTML = `<div class="summary-item" style="opacity: 0.6;"><div class="summary-value">0</div><div class="summary-label">专注次数</div></div><div class="summary-item" style="opacity: 0.6;"><div class="summary-value">00:00:00</div><div class="summary-label">总专注时长</div></div><div class="summary-item" style="opacity: 0.6;"><div class="summary-value">00:00:00</div><div class="summary-label">最长单次</div></div>`;
+            modalListContainer.innerHTML = '<div class="empty-records">当天没有专注记录</div>';
+        }
+
+        modalChart.setOption({ title: { text: '{date|' + dateLabel + '}\n{time|' + timeStr + '}', left: 'center', top: 'center', textStyle: { rich: { date: { color: '#8C7D73', fontSize: 15, fontWeight: '500', padding: [0, 0, 8, 0] }, time: { color: centerColor, fontSize: 24, fontWeight: '600', fontFamily: 'tabular-nums' } } } }, tooltip: { trigger: 'item', formatter: function (params) { if (params.name === '暂无数据') return params.name; return params.name + ' : ' + params.percent + '% <br/>耗时: ' + formatTime(params.value); }, backgroundColor: 'rgba(255,255,255,0.9)', textStyle: { color: '#5A504A' } }, series: [{ name: '时长', type: 'pie', radius: ['60%', '85%'], avoidLabelOverlap: false, itemStyle: { borderRadius: 10, borderColor: '#FFFFFF', borderWidth: 3 }, label: { show: false, position: 'center' }, labelLine: { show: false }, data: chartDataForModal }] });
+    }
+
+    function closeModal() { document.getElementById('detailModal').style.display = 'none'; currentModalDateKey = null; }
+    function closeModalOnOverlay(event) { if (event.target.id === 'detailModal') { closeModal(); } }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' || event.key === 'Esc') {
+            if (event.target.tagName.toLowerCase() === 'input') { return; }
+            const clearModal = document.getElementById('clearConfirmModal'); if (clearModal && clearModal.style.display === 'flex') { closeClearConfirmModal(); return; }
+            const confirmModal = document.getElementById('confirmModal'); if (confirmModal && confirmModal.style.display === 'flex') { closeConfirmModal(); return; }
+            const detailModal = document.getElementById('detailModal'); if (detailModal && detailModal.style.display === 'flex') { closeModal(); }
+        }
+    });
+
+    function exportImage(elementId, filename) {
+        const el = document.getElementById(elementId); if (!el) return;
+        const actionBtns = el.querySelectorAll('.close-btn, .clear-data-btn, .export-btn, .delete-btn, .edit-btn, .modal-theme-container');
+        const originalElStyle = { maxHeight: el.style.maxHeight, overflowY: el.style.overflowY };
+        const lists = el.querySelectorAll('#records-list, #modal-records-list');
+        const originalListStyles = [];
+        lists.forEach(list => { originalListStyles.push({ maxHeight: list.style.maxHeight, overflowY: list.style.overflowY }); });
+
+        const restoreUIState = () => {
+            actionBtns.forEach(btn => btn.style.display = '');
+            el.style.maxHeight = originalElStyle.maxHeight; el.style.overflowY = originalElStyle.overflowY;
+            lists.forEach((list, index) => { list.style.maxHeight = originalListStyles[index].maxHeight; list.style.overflowY = originalListStyles[index].overflowY; });
+        };
+
+        actionBtns.forEach(btn => btn.style.display = 'none');
+        el.style.maxHeight = 'none'; el.style.overflowY = 'visible';
+        lists.forEach(list => { list.style.maxHeight = 'none'; list.style.overflowY = 'visible'; });
+
+        html2canvas(el, { backgroundColor: '#FFFFFF', scale: 2 }).then(canvas => {
+            let link = document.createElement('a'); link.download = filename + '.png'; link.href = canvas.toDataURL('image/png'); link.click();
+        }).catch(error => {
+            console.error('导出图片失败:', error); alert('导出失败，请稍后重试');
+        }).finally(() => { restoreUIState(); });
+    }
+
+    function exportTodayImage() { let d = new Date(); let dateStr = d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日'; exportImage('today-export-area', 'ColorTime_今日复盘_' + dateStr); }
+    function exportHistoryModalImage() { let title = currentModalDateKey ? currentModalDateKey : '历史记录'; exportImage('modal-export-area', 'ColorTime_复盘记录_' + title); }
+
+    // ================= 将需要暴露给 HTML 的函数挂载到 window 对象 =================
+    window.switchView = switchView;
+    window.changeTodayTheme = changeTodayTheme;
+    window.startTimer = startTimer;
+    window.pauseTimer = pauseTimer;
+    window.stopTimer = stopTimer;
+    window.openClearConfirmModal = openClearConfirmModal;
+    window.exportTodayImage = exportTodayImage;
+    window.changeYear = changeYear;
+    window.changeStatsMonth = changeStatsMonth;
+    window.scrollToCurrentMonth = scrollToCurrentMonth;
+    window.closeModalOnOverlay = closeModalOnOverlay;
+    window.closeModal = closeModal;
+    window.changeModalTheme = changeModalTheme;
+    window.exportHistoryModalImage = exportHistoryModalImage;
+    window.closeConfirmOnOverlay = closeConfirmOnOverlay;
+    window.closeConfirmModal = closeConfirmModal;
+    window.executeDeleteTask = executeDeleteTask;
+    window.closeClearConfirmOnOverlay = closeClearConfirmOnOverlay;
+    window.closeClearConfirmModal = closeClearConfirmModal;
+    window.executeClearTodayData = executeClearTodayData;
+
+    // 初次加载只在本地初始化一次
+    initDataCore();
+  </script>
+</body>
+</html>
